@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Node Express</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; }
+        h1 { text-align: center; color: #333; }
+
+        .card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); }
+        .card img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; background-color: #eee; }
+        .card-content h3 { margin: 0 0 5px 0; color: #2c3e50; }
+        .card-content p { margin: 0; color: #7f8c8d; }
+
+        .fab { position: fixed; bottom: 30px; right: 30px; background: #6c5ce7; color: white; width: 60px; height: 60px; border-radius: 50%; font-size: 35px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(108, 92, 231, 0.4); transition: background 0.3s; }
+        .fab:hover { background: #5649c0; }
+
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 320px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-content h3 { margin-top: 0; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        button { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .save { background: #6c5ce7; color: white; }
+        .cancel { background: #e74c3c; color: white; }
+    </style>
+</head>
+<body>
+
+    <h1> Mis peliculas (Node)</h1>
+    <div id="lista-peliculas">
+        </div>
+
+    <button class="fab" onclick="abrirModal()">+</button>
+
+    <div id="modal">
+        <div class="modal-content">
+            <h3>Agregar Nuevo</h3>
+            <input type="text" id="nombre" placeholder="Nombre de la pelicula">
+            <input type="text" id="imagen" placeholder="URL de la imagen">
+            <input type="text" id="genero" placeholder="Género">
+            <div class="btn-group">
+                <button class="save" onclick="guardarPelicula()">Guardar</button>
+                <button class="cancel" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const API_URL = "http://localhost:3000/";
+
+        async function cargarPeliculas() {
+            try {
+                const response = await fetch(API_URL);
+                const peliculas = await response.json();
+                
+                const container = document.getElementById('lista-peliculas');
+                container.innerHTML = ''; 
+
+                peliculas.forEach(pelicula => {
+                    const html = `
+                        <div class="card">
+                            <img src="${pelicula.imagen}" onerror="this.src='https://via.placeholder.com/100?text=Sin+Imagen'">
+                            <div class="card-content">
+                                <h3>${pelicula.nombre}</h3>
+                                <p>${pelicula.genero}</p>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+            } catch (error) {
+                console.error("Error cargando pelicula:", error);
+                alert("Asegúrate de que el servidor Node esté corriendo (node server.js)");
+            }
+        }
+
+        async function guardarPelicula() {
+            const nuevo = {
+                nombre: document.getElementById('nombre').value,
+                imagen: document.getElementById('imagen').value,
+                genero: document.getElementById('genero').value
+            };
+
+            if(!nuevo.nombre) return alert("El nombre es obligatorio");
+
+            try {
+                await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(nuevo)
+                });
+                
+                cerrarModal();
+                cargarPeliculas();
+                limpiarInputs();
+            } catch (error) {
+                alert("Error guardando el pelicula");
+            }
+        }
+
+        function abrirModal() { document.getElementById('modal').style.display = 'flex'; }
+        function cerrarModal() { document.getElementById('modal').style.display = 'none'; }
+        function limpiarInputs() {
+            document.getElementById('nombre').value = '';
+            document.getElementById('imagen').value = '';
+            document.getElementById('genero').value = '';
+        }
+
+        cargarPeliculas();
+    </script>
+</body>
+</html>
