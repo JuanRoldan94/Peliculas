@@ -22,7 +22,7 @@ app.post('/', (req, res) =>{
     const nuevaPelicula = req.body;
 
     if (!nuevaPelicula.nombre || !nuevaPelicula.imagen || !nuevaPelicula.genero){
-        return res.status(400).json({ errror: "Faltan datos"});
+        return res.status(400).json({ error: "Faltan datos"});
     }
 
     catalogo.push(nuevaPelicula);
@@ -30,7 +30,7 @@ app.post('/', (req, res) =>{
 
     res.status(201).json({
         mensaje: "Pelicula creada con exito",
-        pelicula: pelicula
+        pelicula: nuevaPelicula
     });
 });
 
