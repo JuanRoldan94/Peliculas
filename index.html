@@ -29,7 +29,7 @@
 </head>
 <body>
 
-    <h1> Mis peliculas (Node)</h1>
+    <h1> Mis peliculas</h1>
     <div id="lista-peliculas">
         </div>
 
@@ -38,7 +38,7 @@
     <div id="modal">
         <div class="modal-content">
             <h3>Agregar Nuevo</h3>
-            <input type="text" id="nombre" placeholder="Nombre de la pelicula">
+            <input type="text" id="nombre" placeholder="Nombre de la pelicula" >
             <input type="text" id="imagen" placeholder="URL de la imagen">
             <input type="text" id="genero" placeholder="Género">
             <div class="btn-group">
@@ -86,6 +86,7 @@
             };
 
             if(!nuevo.nombre) return alert("El nombre es obligatorio");
+
 
             try {
                 await fetch(API_URL, {

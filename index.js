@@ -21,9 +21,9 @@ app.get('/', (req, res) =>{
 app.post('/', (req, res) =>{
     const nuevaPelicula = req.body;
 
-    if (!nuevaPelicula.nombre || !nuevaPelicula.imagen || !nuevaPelicula.genero){
-        return res.status(400).json({ error: "Faltan datos"});
-    }
+//    if (!nuevaPelicula.nombre || !nuevaPelicula.imagen || !nuevaPelicula.genero){
+//        return res.status(400).json({ error: "Faltan datos"});
+//    }
 
     catalogo.push(nuevaPelicula);
     console.log("Pelicula agregada: ", nuevaPelicula);
