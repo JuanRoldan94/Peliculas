@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Node Express</title>
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+    <h1>Mis peliculas</h1>
+
+    <div id="lista-peliculas">
+        
+    </div>
+
+    <button class="fab" onclick="abrirModal()">+</button>
+
+    <div id="modal">
+        <div class="modal-content">
+            <h3>Agregar Nueva Pelicula</h3>
+            <input type="text" id="nombre" placeholder="Nombre de la pelicula" >
+            <input type="text" id="imagen" placeholder="URL de la imagen">
+            <input type="text" id="genero" placeholder="Género">
+            <div class="btn-group">
+                <button class="save" onclick="guardarPelicula()">Guardar</button>
+                <button class="cancel" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:3000/peliculas";
+
+        async function cargarPeliculas() {
+            try {
+                const response = await fetch(API_URL);
+                const peliculas = await response.json();
+                
+                const container = document.getElementById('lista-peliculas');
+                container.innerHTML = ''; 
+
+                peliculas.forEach(pelicula => {
+                    const html = `
+                        <div class="card">
+                            <img src="${pelicula.imagen}" onerror="this.src='https://via.placeholder.com/100?text=Sin+Imagen'">
+                            <div class="card-content">
+                                <h3>${pelicula.nombre}</h3>
+                                <p>${pelicula.genero}</p>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+            } catch (error) {
+                console.error("Error cargando pelicula:", error);
+                alert("Asegúrate de que el servidor Node esté corriendo (node server.js)");
+            }
+        }
+
+        async function guardarPelicula() {
+            const nuevo = {
+                nombre: document.getElementById('nombre').value,
+                imagen: document.getElementById('imagen').value,
+                genero: document.getElementById('genero').value
+            };
+
+            if(!nuevo.nombre) return alert("El nombre es obligatorio");
+
+            try {
+                await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(nuevo)
+                });
+                
+                cerrarModal();
+                cargarPeliculas();
+                limpiarInputs();
+            } catch (error) {
+                alert("Error guardando el pelicula");
+            }
+        }
+
+        function abrirModal() { document.getElementById('modal').style.display = 'flex'; }
+        function cerrarModal() { document.getElementById('modal').style.display = 'none'; }
+        function limpiarInputs() {
+            document.getElementById('nombre').value = '';
+            document.getElementById('imagen').value = '';
+            document.getElementById('genero').value = '';
+        }
+
+        cargarPeliculas();
+    </script>
+</body>
+</html>
