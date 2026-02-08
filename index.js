@@ -23,11 +23,11 @@ app.post('/peliculas', (req, res) => {
     const nuevaPelicula = req.body;
 
     if (!nuevaPelicula.imagen){
-        nuevaPelicula.imagen = "/img/default.jpg";
+        nuevaPelicula.imagen = '/img/default.jpg';
     }
     
     catalogo.push(nuevaPelicula);
-    console.log("Pelicula agregada al catalogo:", nuevaPelicula);
+    console.log('Pelicula agregada al catalogo:', nuevaPelicula);
 
     res.status(201).json({ 
         message: 'Pelicula agregada al catalogo', 
