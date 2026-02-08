@@ -20,7 +20,7 @@ app.get('/peliculas', (req, res) => {
 });
 
 app.post('/peliculas', (req, res) => {
-    const nuevaPelicula = req.body;;
+    const nuevaPelicula = req.body;
 
     if (!nuevaPelicula.imagen){
         nuevaPelicula.imagen = "/img/default.jpg";
