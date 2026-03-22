@@ -12,6 +12,7 @@ app.use(express.static('public'));
 const catalogo = []
 
 app.get('/', (req, res) => {
+    req.log = console.log;
     res.render('index');
 });
 
@@ -83,5 +84,5 @@ app.put('/peliculas/:id', (req, res) => {
 
 
 app.listen(PORT, (req, res) => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+    console.log(`Servidor corriendo en el puerto http://localhost:${PORT}`);
 });
