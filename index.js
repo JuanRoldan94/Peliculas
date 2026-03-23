@@ -71,8 +71,8 @@ app.put('/peliculas/:id', (req, res) => {
     const pelicula = catalogo.find(p => p.id === idParaEditar);
 
     if (pelicula) {
-        pelicula.nombre = datosNuevos.nombre || pelicula.nombre;
-        pelicula.genero = datosNuevos.genero || pelicula.genero;
+        pelicula.nombre = datosNuevos.nombre ?? pelicula.nombre;
+        pelicula.genero = datosNuevos.genero ?? pelicula.genero;
         pelicula.imagen = datosNuevos.imagen || "/img/default.jpg";
 
         console.log(`Pelicula editada: ${pelicula.nombre}`);
