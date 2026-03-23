@@ -1,46 +1,77 @@
-const catalogo = [];
+const { sql, poolPromise } = require('../config/db');
 
-const obtenerTodas = () => {
-    return catalogo;
+const obtenerTodas = async () => {
+    const pool = await poolPromise;
+    const result = await pool.request().query('SELECT * FROM peliculas');
+    return result.recordset;
 };
 
-const obtenerPorId = (id) => {
-    return catalogo.find(p => p.id === id);
-};
-
-const crear = (datos) => {
-    const nuevaPelicula = { ...datos };
-    nuevaPelicula.id = Date.now().toString();
-
-    if (!nuevaPelicula.imagen) {
-        nuevaPelicula.imagen = '/img/default.jpg';
-    }
+const obtenerPorId = async (id) => {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('id', sql.Int, id)
+        .query('SELECT * FROM peliculas WHERE id = @id');
     
-    catalogo.push(nuevaPelicula);
-    console.log('Pelicula agregada al catalogo:', nuevaPelicula);
-    return nuevaPelicula;
+    return result.recordset[0];
 };
 
-const eliminar = (id) => {
-    const indice = catalogo.findIndex(pelicula => pelicula.id === id);
-    if (indice !== -1) {
-        catalogo.splice(indice, 1);
-        console.log(`Pelicula con id ${id} eliminada`);
-        return true;
-    }
-    return false;
+const crear = async (datos) => {
+    let { nombre, genero, imagen } = datos;
+    if (!imagen) imagen = '/img/default.jpg';
+
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('nombre', sql.NVarChar, nombre)
+        .input('genero', sql.NVarChar, genero)
+        .input('imagen', sql.NVarChar, imagen)
+        
+        .query(`
+            INSERT INTO peliculas (nombre, genero, imagen) 
+            OUTPUT inserted.id 
+            VALUES (@nombre, @genero, @imagen)
+        `);
+
+
+    const insertId = result.recordset[0].id;
+    return { id: insertId, nombre, genero, imagen };
 };
 
-const actualizar = (id, datosNuevos) => {
-    const pelicula = catalogo.find(p => p.id === id);
-    if (pelicula) {
-        pelicula.nombre = datosNuevos.nombre ?? pelicula.nombre;
-        pelicula.genero = datosNuevos.genero ?? pelicula.genero;
-        pelicula.imagen = datosNuevos.imagen || "/img/default.jpg";
-        console.log(`Pelicula editada: ${pelicula.nombre}`);
-        return pelicula;
-    }
-    return null;
+const eliminar = async (id) => {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('id', sql.Int, id)
+        .query('DELETE FROM peliculas WHERE id = @id');
+    
+    return result.rowsAffected[0] > 0;
 };
 
-module.exports = { obtenerTodas, obtenerPorId, crear, eliminar, actualizar };
+const actualizar = async (id, datosNuevos) => {
+    const peliculaActual = await obtenerPorId(id);
+    if (!peliculaActual) return null;
+
+    const nombre = datosNuevos.nombre ?? peliculaActual.nombre;
+    const genero = datosNuevos.genero ?? peliculaActual.genero;
+    const imagen = datosNuevos.imagen || peliculaActual.imagen || "/img/default.jpg";
+
+    const pool = await poolPromise;
+    await pool.request()
+        .input('id', sql.Int, id)
+        .input('nombre', sql.NVarChar, nombre)
+        .input('genero', sql.NVarChar, genero)
+        .input('imagen', sql.NVarChar, imagen)
+        .query(`
+            UPDATE peliculas 
+            SET nombre = @nombre, genero = @genero, imagen = @imagen 
+            WHERE id = @id
+        `);
+
+    return { id, nombre, genero, imagen };
+};
+
+module.exports = {
+    obtenerTodas,
+    obtenerPorId,
+    crear,
+    eliminar,
+    actualizar
+};
